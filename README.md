@@ -86,7 +86,7 @@ https://airi-set-api.onrender.com/api/health
 
 ### 3. Deploy Frontend ke Vercel
 
-Import repository ke Vercel dan pilih folder `frontend` sebagai Root Directory. Jika project Vercel terlanjur memakai root repository, `vercel.json` di root sudah diarahkan untuk build aplikasi dari folder `frontend`.
+Import repository ke Vercel dan pilih folder `frontend` sebagai Root Directory. Pastikan Framework Preset di Vercel adalah `Next.js`, bukan `Services`. Jika project Vercel terlanjur memakai root repository, `vercel.json` di root sudah diarahkan untuk build aplikasi dari folder `frontend`.
 
 Tambahkan environment variable di Vercel:
 
