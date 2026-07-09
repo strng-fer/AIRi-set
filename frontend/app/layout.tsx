@@ -4,7 +4,7 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "AIRi-set",
-  description: "AI Research Assistant powered by RAG",
+  description: "AI Research Assistant",
 };
 
 export default function RootLayout({

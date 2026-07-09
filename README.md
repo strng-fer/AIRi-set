@@ -45,6 +45,8 @@ npm run dev
 
 Frontend berjalan di `http://localhost:3000` dan backend di `http://localhost:8000`.
 
+Saat development, request frontend ke `/api/*` otomatis diteruskan oleh Next.js ke backend lokal `http://127.0.0.1:8000`.
+
 ## Deployment
 
 ### 1. Siapkan Gemini API Key
@@ -84,13 +86,15 @@ https://airi-set-api.onrender.com/api/health
 
 ### 3. Deploy Frontend ke Vercel
 
-Import repository ke Vercel dan pilih folder `frontend` sebagai root directory.
+Import repository ke Vercel dan pilih folder `frontend` sebagai Root Directory. Jika project Vercel terlanjur memakai root repository, `vercel.json` di root sudah diarahkan untuk build aplikasi dari folder `frontend`.
 
 Tambahkan environment variable di Vercel:
 
 ```text
-NEXT_PUBLIC_API_URL=https://airi-set-api.onrender.com
+API_URL=https://airi-set-api.onrender.com
 ```
+
+Frontend memakai path relatif `/api/*`, lalu Next.js/Vercel meneruskannya ke `API_URL`. Ini membuat browser tidak lagi mencoba menghubungi `localhost`/`127.0.0.1` saat production.
 
 Redeploy frontend setelah environment variable ditambahkan. Jika URL Vercel sudah final, balik ke Render dan pastikan `FRONTEND_ORIGIN` serta `CORS_ORIGINS` memakai URL Vercel tersebut.
 

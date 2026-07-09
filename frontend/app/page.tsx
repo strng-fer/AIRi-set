@@ -24,7 +24,6 @@ import {
   useState,
 } from "react";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://127.0.0.1:8000";
 const CHAT_HISTORY_KEY = "airi-set-chat-history";
 
 type Paper = {
@@ -108,7 +107,7 @@ export default function Home() {
   }, [messages]);
 
   async function loadPapers() {
-    const response = await fetch(`${API_URL}/api/papers`);
+    const response = await fetch("/api/papers");
     if (!response.ok) {
       throw new Error(await readApiError(response));
     }
@@ -119,7 +118,7 @@ export default function Home() {
     setIsLoading(true);
     setStatus("Meng-index ulang semua paper...");
     try {
-      const response = await fetch(`${API_URL}/api/index`, { method: "POST" });
+      const response = await fetch("/api/index", { method: "POST" });
       if (!response.ok) {
         throw new Error(await readApiError(response));
       }
@@ -145,7 +144,7 @@ export default function Home() {
     setIsUploading(true);
     setStatus("Mengunggah dan membaca PDF...");
     try {
-      const response = await fetch(`${API_URL}/api/upload`, {
+      const response = await fetch("/api/upload", {
         method: "POST",
         body: formData,
       });
@@ -172,7 +171,7 @@ export default function Home() {
     setDeletingPaperId(paper.id);
     setStatus(`Menghapus ${paper.title}...`);
     try {
-      const response = await fetch(`${API_URL}/api/papers/${paper.id}`, { method: "DELETE" });
+      const response = await fetch(`/api/papers/${paper.id}`, { method: "DELETE" });
       if (!response.ok) {
         throw new Error(await readApiError(response));
       }
@@ -203,7 +202,7 @@ export default function Home() {
     setIsLoading(true);
 
     try {
-      const response = await fetch(`${API_URL}/api/chat`, {
+      const response = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ question: trimmed }),
