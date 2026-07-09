@@ -1,3 +1,5 @@
+import os
+import tempfile
 from pathlib import Path
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -12,8 +14,9 @@ class Settings(BaseSettings):
 
     root_dir: Path = Path(__file__).resolve().parents[2]
     knowledge_base_dir: Path = root_dir / "knowledge_base"
-    uploads_dir: Path = root_dir / "uploads"
-    chroma_dir: Path = root_dir / "backend" / ".chroma"
+    runtime_dir: Path = Path(os.getenv("AIRi_SET_RUNTIME_DIR", Path(tempfile.gettempdir()) / "airi-set"))
+    uploads_dir: Path = runtime_dir / "uploads" if os.getenv("VERCEL") else root_dir / "uploads"
+    chroma_dir: Path = runtime_dir / "chroma" if os.getenv("VERCEL") else root_dir / "backend" / ".chroma"
 
     model_config = SettingsConfigDict(env_file=Path(__file__).resolve().parents[1] / ".env")
 

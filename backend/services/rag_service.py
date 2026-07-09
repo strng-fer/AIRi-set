@@ -1,17 +1,15 @@
 from pathlib import Path
 
-import chromadb
 from core.config import settings
 from models.schemas import ChatResponse, Citation
 from services.chunking import chunk_pages
 from services.document_store import document_store
-from services.embedding_service import embedding_service
-from services.llm_service import llm_service
-from services.pdf_service import extract_pages
 
 
 class RAGService:
     def __init__(self) -> None:
+        import chromadb
+
         settings.chroma_dir.mkdir(parents=True, exist_ok=True)
         self.client = chromadb.PersistentClient(path=str(settings.chroma_dir))
         self.collection = self.client.get_or_create_collection("airi_set_papers")
@@ -22,6 +20,8 @@ class RAGService:
         return self.index_files(paths)
 
     def index_files(self, paths: list[Path]) -> int:
+        from services.pdf_service import extract_pages
+
         all_chunks: list[dict] = []
         for path in paths:
             if path.exists() and path.suffix.lower() == ".pdf":
@@ -29,6 +29,8 @@ class RAGService:
 
         if not all_chunks:
             return 0
+
+        from services.embedding_service import embedding_service
 
         texts = [chunk["text"] for chunk in all_chunks]
         embeddings = embedding_service.embed_documents(texts)
@@ -65,6 +67,9 @@ class RAGService:
                 }
             )
 
+        from services.embedding_service import embedding_service
+        from services.llm_service import llm_service
+
         answer = llm_service.answer(question, contexts)
         citations = [
             Citation(paper=item["paper"], page=item["page"], snippet=item["text"][:240])
@@ -80,4 +85,11 @@ class RAGService:
         self.collection = self.client.get_or_create_collection("airi_set_papers")
 
 
-rag_service = RAGService()
+_rag_service: RAGService | None = None
+
+
+def get_rag_service() -> RAGService:
+    global _rag_service
+    if _rag_service is None:
+        _rag_service = RAGService()
+    return _rag_service

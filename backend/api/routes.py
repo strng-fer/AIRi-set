@@ -4,7 +4,7 @@ from fastapi import APIRouter, File, HTTPException, UploadFile
 from fastapi.responses import JSONResponse
 from models.schemas import ChatRequest, ChatResponse, Paper
 from services.document_store import document_store
-from services.rag_service import rag_service
+from services.rag_service import get_rag_service
 
 router = APIRouter(prefix="/api")
 
@@ -21,7 +21,7 @@ def list_papers():
 
 @router.post("/index")
 def index_knowledge_base():
-    result = rag_service.index_knowledge_base()
+    result = get_rag_service().index_knowledge_base()
     return {"indexed_chunks": result}
 
 
@@ -36,14 +36,14 @@ async def upload_papers(files: list[UploadFile] = File(...)):
             raise HTTPException(status_code=400, detail=f"{file.filename} is not a PDF.")
         saved_paths.append(await document_store.save_upload(file))
 
-    indexed = rag_service.index_files(saved_paths)
+    indexed = get_rag_service().index_files(saved_paths)
     return JSONResponse({"uploaded": len(saved_paths), "indexed_chunks": indexed})
 
 
 @router.delete("/papers/{paper_id}")
 def delete_uploaded_paper(paper_id: str):
     paper = document_store.delete_upload(paper_id)
-    indexed = rag_service.index_knowledge_base()
+    indexed = get_rag_service().index_knowledge_base()
     return {"deleted": paper.id, "indexed_chunks": indexed}
 
 
@@ -51,4 +51,4 @@ def delete_uploaded_paper(paper_id: str):
 def chat(payload: ChatRequest):
     if not payload.question.strip():
         raise HTTPException(status_code=400, detail="Question cannot be empty.")
-    return rag_service.answer(payload.question)
+    return get_rag_service().answer(payload.question)

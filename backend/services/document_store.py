@@ -1,4 +1,5 @@
 import re
+from hashlib import sha1
 from pathlib import Path
 
 from core.config import settings
@@ -24,7 +25,7 @@ class DocumentStore:
                         id=self._paper_id(path),
                         title=path.stem,
                         category=category,
-                        path=str(path.relative_to(settings.root_dir)),
+                        path=self._display_path(path),
                         source=source,
                     )
                 )
@@ -49,7 +50,9 @@ class DocumentStore:
         if paper.source != "upload":
             raise HTTPException(status_code=400, detail="Hanya paper upload yang bisa dihapus dari aplikasi.")
 
-        target = settings.root_dir / paper.path
+        target = Path(paper.path)
+        if not target.is_absolute():
+            target = settings.root_dir / target
         resolved_uploads = settings.uploads_dir.resolve()
         resolved_target = target.resolve()
         if not str(resolved_target).startswith(str(resolved_uploads)):
@@ -60,7 +63,18 @@ class DocumentStore:
         return paper
 
     def _paper_id(self, path: Path) -> str:
-        return re.sub(r"[^a-zA-Z0-9]+", "-", str(path.relative_to(settings.root_dir))).strip("-").lower()
+        try:
+            value = str(path.relative_to(settings.root_dir))
+        except ValueError:
+            digest = sha1(str(path).encode("utf-8")).hexdigest()[:10]
+            value = f"{path.name}-{digest}"
+        return re.sub(r"[^a-zA-Z0-9]+", "-", value).strip("-").lower()
+
+    def _display_path(self, path: Path) -> str:
+        try:
+            return str(path.relative_to(settings.root_dir))
+        except ValueError:
+            return str(path)
 
     def _safe_filename(self, filename: str) -> str:
         cleaned = re.sub(r"[^a-zA-Z0-9._-]+", "_", filename).strip("._")
