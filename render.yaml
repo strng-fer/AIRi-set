@@ -1,0 +1,18 @@
+services:
+  - type: web
+    name: airi-set-api
+    runtime: python
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: GEMINI_MODEL
+        value: gemini-2.5-flash
+      - key: GEMINI_EMBEDDING_MODEL
+        value: models/gemini-embedding-001
+      - key: FRONTEND_ORIGIN
+        value: https://your-vercel-app.vercel.app
+      - key: CORS_ORIGINS
+        value: https://your-vercel-app.vercel.app,http://localhost:3000,http://127.0.0.1:3000

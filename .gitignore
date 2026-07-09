@@ -1,0 +1,17 @@
+# Python
+__pycache__/
+*.py[cod]
+backend/.venv/
+backend/.chroma/
+
+# Node
+frontend/node_modules/
+frontend/.next/
+frontend/out/
+
+# Env and logs
+.env
+*.log
+backend/.env
+frontend/.env.local
+
